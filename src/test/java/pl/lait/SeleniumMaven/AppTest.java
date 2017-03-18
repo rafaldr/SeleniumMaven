@@ -21,78 +21,32 @@ public class AppTest {
 	static FirefoxDriver driver;
 	String folder = "allScreens";
 
-	@BeforeClass
-	public static void openBrowser() {
-		driver = new FirefoxDriver();
-		driver.get("http://newtours.demoaut.com");
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver.manage().window().maximize();
+	
+	public static FirefoxDriver getDriver() {
+
+		if (driver == null) {
+			System.out.println("obiekt DRIVERa == NULL - wykonuję new FirefoxDriver()");
+			driver = new FirefoxDriver();
+			driver.get("http://newtours.demoaut.com");
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.manage().window().maximize();
+			return driver;
+		} else {
+			System.out.println("obiekt DRIVERa != NULL - zwracam obiekt");
+			return driver;
+		}
+
 	}
 
-	// http://newtours.demoaut.com
-	//@Ignore
-	@Test
-	public void test2_mainMenuTest() {
-		System.out.println("2");
-		// driver.get("http://newtours.demoaut.com");
-		linkClick("SIGN-ON");
-		linkClick("SUPPORT");
-		System.out.println("klikam w CONTACT");
-		linkClick("CONTACT");
-		printScr();
-		linkClick("REGISTER");
-	}
 
-	//@Ignore
-	@Test
-	public void test1_register() {
-		System.out.println("1");
-		folder = new Object() {
-		}.getClass().getEnclosingMethod().getName();
-
-		linkClick("REGISTER");
-		driver.findElement(By.id("email")).clear();
-		driver.findElement(By.id("email")).sendKeys("adam_qwe123");
-		driver.findElement(By.name("password")).sendKeys("qwe123");
-		driver.findElement(By.name("confirmPassword")).sendKeys("qwe123");
-		printScr();
-		driver.findElement(By.name("register")).click();
-		printScr();
-		linkClick("SIGN-OFF");
-	}
-
-	@Test
-	public void test3_reservation() {
-		System.out.println("3");
-		folder = new Object() {		}.getClass().getEnclosingMethod().getName();
-		// sprawdzi czy zalogowany, jesli nie - zaloguje, jesli tak - idzie dalej
-		loginAs("adam_qwe123", "qwe123"); 
-		// tu będzie faktyczny test:
-		driver.findElement(By.xpath("/html/body/div/table/tbody/tr/td[2]/"
-				+ "table/tbody/tr[4]/td/table/tbody/tr/td[2]/"
-				+ "table/tbody/tr[5]/td/form/table/tbody/tr[2]"
-				+ "/td[2]/b/font/input[2]")).click();
-		/*
-		<select name="passCount">
-        <option value="1">1 </option>
-        <option value="2">2 </option>
-        <option value="3">3 </option>
-        <option value="4">4 </option>
-      	</select>
-      */
-		Select passengers = new Select(driver.findElement(By.name("passCount")));
-		passengers.selectByVisibleText("2");
-		printScr();
-		
-		
-	}
-//-------------------------------------------------------------------------
+	
+	// -------------------------------------------------------------------------
 	// BRAK ADNOTACJI @TEST BO TO JEST reużywalna MEGTODA do innych testów
 	public void loginAs(String user, String pass) {
 		if (isElementPresent(By.linkText("SIGN-OFF"))) {
-			System.out.println("jestem zalogowany, testuję dalej");
+			
 		} else {
-			System.out.println("NIE jestem zalogowany, loguje się");
+			
 			linkClick("SIGN-ON");
 			driver.findElement(By.name("userName")).sendKeys(user);
 			driver.findElement(By.name("password")).sendKeys(pass);
@@ -100,6 +54,20 @@ public class AppTest {
 			
 		}
 	}
+	
+	//alternatywa dla loginAs z użyciem operatora negacji "!"
+	public void loginAs2(String user, String pass) {
+		if (!isElementPresent(By.linkText("SIGN-OFF"))) {
+			
+			linkClick("SIGN-ON");
+			driver.findElement(By.name("userName")).sendKeys(user);
+			driver.findElement(By.name("password")).sendKeys(pass);
+			driver.findElement(By.name("login")).click();
+			
+		} 
+	}
+
+	
 
 	public boolean isElementPresent(By locatorKey) {
 		try {
@@ -136,10 +104,6 @@ public class AppTest {
 
 	}
 
-	@AfterClass
-	public static void closeBrowser() {
-		driver.close();
-		driver.quit();
-	}
+	
 
 }
